@@ -146,27 +146,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Cross-Platform PWA Install Section */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-[var(--line)]">
+        {/* Cross-Platform PWA & Native Android APK Section */}
+        <div className="flex flex-col gap-2.5 pt-2 border-t border-[var(--line)]">
           <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
-            Android &amp; Desktop App Installation (PWA)
+            Android App &amp; Native APK Options
           </span>
           {isInstalled ? (
             <p className="text-xs text-[var(--teal)] m-0 font-medium">
-              ✓ Installed and running in standalone mode with full offline ephemeris support.
+              Installed and running in standalone Android/App mode with 100% offline ephemeris
+              support.
             </p>
           ) : isInstallable ? (
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-[var(--muted)] m-0">
-                Install this application on your Android home screen or desktop for offline chart
-                generation.
+            <div className="flex items-center justify-between gap-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3">
+              <p className="text-xs text-[var(--ink)] m-0">
+                <strong>Direct Android Install (WebAPK):</strong> Install directly onto your Android
+                home screen for full-screen offline chart generation.
               </p>
               <button
                 type="button"
                 onClick={install}
                 className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-ink)] text-xs font-medium cursor-pointer shrink-0"
               >
-                Install App
+                Install Android App
               </button>
             </div>
           ) : isIOS ? (
@@ -186,10 +187,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
           ) : (
-            <p className="text-xs text-[var(--muted)] m-0">
-              Offline Service Worker is active. In Chrome on Android or Desktop, use the browser
-              menu&apos;s <strong>Add to Home screen / Install app</strong> option to install.
-            </p>
+            <div className="bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3 flex flex-col gap-2 text-xs">
+              <div>
+                <strong className="text-[var(--ink)]">1. Instant Android WebAPK (No Studio needed):</strong>{' '}
+                <span className="text-[var(--muted)]">
+                  Open this URL in Chrome on Android and tap <strong>Menu → Add to Home screen / Install app</strong>. Android compiles a standalone offline app icon (<code className="font-mono-num">JyotiṣaPWA</code>).
+                </span>
+              </div>
+              <div className="pt-2 border-t border-dashed border-[var(--line)]">
+                <strong className="text-[var(--ink)]">2. Build Native Android <code className="font-mono-num">.apk</code> (Capacitor Configured):</strong>{' '}
+                <span className="text-[var(--muted)]">
+                  This project includes <code className="font-mono-num">capacitor.config.ts</code> (<code className="font-mono-num">com.jyotisa.katapayadi.ephemeris</code>). Run:
+                </span>
+                <pre className="mt-1.5 p-2 rounded bg-[var(--surface)] border border-[var(--line)] font-mono-num text-[11px] text-[var(--ink)] overflow-x-auto m-0">
+                  npm i @capacitor/android &amp;&amp; npm run build &amp;&amp; npx cap add android &amp;&amp; npx cap open android
+                </pre>
+              </div>
+            </div>
           )}
         </div>
 

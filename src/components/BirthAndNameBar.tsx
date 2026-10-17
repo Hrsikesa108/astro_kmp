@@ -162,7 +162,7 @@ export const BirthAndNameBar: React.FC<BirthAndNameBarProps> = ({
             onChange={(e) => onNameChange(e.target.value)}
             placeholder={
               scriptMode === 'roman'
-                ? 'Enter name (e.g. Chiranjeevi, Aravind)'
+                ? 'Enter name (e.g. Chiranjeevi)'
                 : scriptMode === 'deva'
                 ? 'नाम लिखें (उदा. गणेश)'
                 : 'పేరు రాయండి (ఉదా. భారత)'
