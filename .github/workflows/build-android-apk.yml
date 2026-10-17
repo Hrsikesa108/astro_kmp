@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Set up JDK 21 (Required by Capacitor 8 & Gradle)
         uses: actions/setup-java@v4
@@ -36,7 +35,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Node Dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund
 
       - name: Build Production Web Bundle
         run: npm run build
