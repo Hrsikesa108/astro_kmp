@@ -187,20 +187,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
           ) : (
-            <div className="bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3 flex flex-col gap-2 text-xs">
+            <div className="bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3 flex flex-col gap-2.5 text-xs">
               <div>
-                <strong className="text-[var(--ink)]">1. Instant Android WebAPK (No Studio needed):</strong>{' '}
+                <strong className="text-[var(--ink)]">1. Download Capacitor <code className="font-mono-num">.apk</code> via GitHub Actions:</strong>{' '}
                 <span className="text-[var(--muted)]">
-                  Open this URL in Chrome on Android and tap <strong>Menu → Add to Home screen / Install app</strong>. Android compiles a standalone offline app icon (<code className="font-mono-num">JyotiṣaPWA</code>).
+                  Push this repo to GitHub and open the <strong>Actions</strong> tab → <strong>Build Android APK (Capacitor)</strong> (<code className="font-mono-num">.github/workflows/build-android-apk.yml</code>). Download the compiled <code className="font-mono-num">Jyotisa-Katapayadi-Android-APK</code> artifact directly to your phone.
                 </span>
               </div>
               <div className="pt-2 border-t border-dashed border-[var(--line)]">
-                <strong className="text-[var(--ink)]">2. Build Native Android <code className="font-mono-num">.apk</code> (Capacitor Configured):</strong>{' '}
+                <strong className="text-[var(--ink)]">2. Instant Android WebAPK (Direct from Chrome):</strong>{' '}
                 <span className="text-[var(--muted)]">
-                  This project includes <code className="font-mono-num">capacitor.config.ts</code> (<code className="font-mono-num">com.jyotisa.katapayadi.ephemeris</code>). Run:
+                  Open this URL in Chrome on Android and tap <strong>Menu → Add to Home screen / Install app</strong>.
                 </span>
-                <pre className="mt-1.5 p-2 rounded bg-[var(--surface)] border border-[var(--line)] font-mono-num text-[11px] text-[var(--ink)] overflow-x-auto m-0">
-                  npm i @capacitor/android &amp;&amp; npm run build &amp;&amp; npx cap add android &amp;&amp; npx cap open android
+              </div>
+              <div className="pt-2 border-t border-dashed border-[var(--line)]">
+                <strong className="text-[var(--ink)]">3. Local Capacitor <code className="font-mono-num">.apk</code> Build:</strong>{' '}
+                <pre className="mt-1 p-2 rounded bg-[var(--surface)] border border-[var(--line)] font-mono-num text-[11px] text-[var(--ink)] overflow-x-auto m-0">
+                  npm run build &amp;&amp; npx cap add android &amp;&amp; npx cap sync android &amp;&amp; cd android &amp;&amp; ./gradlew assembleDebug
                 </pre>
               </div>
             </div>

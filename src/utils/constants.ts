@@ -308,14 +308,5 @@ export const SAMPLE_PROFILES: SampleProfile[] = [
     date: '1990-05-09',
     time: '09:00',
     place: { name: 'Hyderabad, India', lat: 17.385, lon: 78.4867, zone: 'Asia/Kolkata' },
-  },
-  {
-    id: 'aravind',
-    label: 'Aravind Cherala (Natal Study)',
-    subtitle: '15 Oct 1992 · 09:15 IST · Hyderabad',
-    name: 'Aravind',
-    date: '1992-10-15',
-    time: '09:15',
-    place: { name: 'Hyderabad, India', lat: 17.385, lon: 78.4867, zone: 'Asia/Kolkata' },
-  },
+  }
 ];

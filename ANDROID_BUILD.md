@@ -1,49 +1,44 @@
-# Android App Installation & Native APK Build Guide
+# Android App Installation & GitHub Actions APK Build Guide
 
-This application is engineered to work on **Android** in two ways:
-1. **Instant Direct Install (PWA / WebAPK)** — No Android Studio required; installs directly from Chrome on Android as a standalone offline app.
-2. **Native Android APK / AAB (Capacitor)** — Pre-configured with `@capacitor/core` and `capacitor.config.ts` so you can build a signed `.apk` or Google Play `.aab` bundle.
+This application is configured to build a downloadable **Capacitor Android `.apk`** automatically via **GitHub Actions**, as well as supporting direct local builds and instant WebAPK installation.
 
 ---
 
-## Option 1: Instant Android Installation (No Build Tools Needed)
+## Option 1: Download the Android `.apk` via GitHub Actions (No Local Setup Needed)
 
-1. Open the hosted App URL in **Google Chrome on your Android phone**.
-2. Tap **Settings** in the top-right corner of the app (or tap the **Install App** button if prompted in the header).
-3. Alternatively, tap the Chrome `⋮` (three-dot menu) and select **Add to Home screen** → **Install**.
-4. Android compiles a native **WebAPK** (`JyotiṣaPWA`) on your device with full offline support—all planetary ephemeris (`astronomy-engine`), divisional charts (`D1`, `D9`, `D10`, `D60`), and Kaṭapayādi calculations run 100% locally offline.
+A complete CI workflow is configured at `.github/workflows/build-android-apk.yml`. Every time you push to `main`/`master` (or trigger it manually), GitHub Actions compiles the production Vite bundle, generates/syncs the Capacitor Android project, runs Gradle (`./gradlew assembleDebug`), and uploads the ready-to-install `.apk`.
+
+### How to Download Your APK from GitHub:
+1. Push or sync this repository to **GitHub**.
+2. Open your repository on GitHub and click the **Actions** tab at the top.
+3. Select the **Build Android APK (Capacitor)** workflow on the left.
+4. *(Optional)* Click **Run workflow** → **Run workflow** to trigger a build on demand at any time.
+5. Once the workflow run completes (green checkmark), scroll down to the **Artifacts** section at the bottom of the run summary page.
+6. Click **`Jyotisa-Katapayadi-Android-APK`** to download the `.zip` containing:
+   - `Jyotisa-Katapayadi-Ephemeris-debug.apk` (Signed with Android debug key — ready to install directly on your Android phone!)
+   - `Jyotisa-Katapayadi-Ephemeris-release-unsigned.apk` (Unsigned release APK for Play Store signing).
 
 ---
 
-## Option 2: Building a Native `.apk` with Capacitor & Android Studio
+## Option 2: Building a Native `.apk` Locally with Capacitor
 
-The project includes `capacitor.config.ts` (`appId: com.jyotisa.katapayadi.ephemeris`). To generate a native Android `.apk`:
+All Capacitor dependencies (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android`) and `capacitor.config.ts` (`appId: com.jyotisa.katapayadi.ephemeris`) are pre-installed in `package.json`.
 
 ```bash
-# 1. Install the Capacitor Android platform package
-npm install @capacitor/android
-
-# 2. Build the production web bundle and initialize the Android project
+# 1. Build the web app and initialize/sync the Android platform
 npm run build
 npx cap add android
 npx cap sync android
 
-# 3. Open in Android Studio to run on an emulator/device or generate an APK
-npx cap open android
-
-# Or build the debug APK directly via Gradle CLI:
+# 2. Build the APK via Gradle CLI
 cd android && ./gradlew assembleDebug
 # Output APK: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ---
 
-## Option 3: Building a Play Store APK / AAB via Bubblewrap (TWA)
+## Option 3: Instant Android Installation (PWA / WebAPK)
 
-Because the app serves a compliant `manifest.webmanifest` at `/manifest.webmanifest`, you can also wrap the live URL into an Android App Bundle using Google's Bubblewrap CLI:
-
-```bash
-npm i -g @bubblewrap/cli
-bubblewrap init --manifest=https://<your-deployed-app-url>/manifest.webmanifest
-bubblewrap build
-```
+1. Open the hosted App URL in **Google Chrome on your Android phone**.
+2. Tap **Install App** in the top bar, or open Chrome's **Menu → Add to Home screen / Install app**.
+3. Android installs a standalone offline app (`JyotiṣaPWA`) on your home screen.
