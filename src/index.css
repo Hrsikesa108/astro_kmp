@@ -1,0 +1,413 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #F4F5F8;
+  --surface: #FFFFFF;
+  --ink: #1D1B2B;
+  --muted: #625F78;
+  --line: #DDDBE6;
+  --accent: #A6281F;
+  --accent-ink: #FFFFFF;
+  --krishna: #EBEDF4;
+  --shukla: #FFFFFF;
+  --gold-bg: #FFF1CC;
+  --gold: #8A5A00;
+  --shunya-bg: #FBE3EC;
+  --shunya: #9A1B55;
+  --adhika-bg: #E3ECFB;
+  --adhika: #1F4E9A;
+  --teal: #1F8A76;
+  --teal-bg: #E0F4F0;
+  --moon-lit: #F2D27A;
+  --moon-dark: #3A3850;
+  --display: "Tiro Devanagari Sanskrit", "Cormorant Garamond", "Source Serif 4", "Noto Sans Devanagari", Georgia, serif;
+  --serif: "Cormorant Garamond", "Source Serif 4", "Tiro Devanagari Sanskrit", Georgia, serif;
+  --body: "IBM Plex Sans", "Source Serif 4", "Cormorant Garamond", "Noto Sans Devanagari", "Noto Sans Telugu", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", "Source Serif 4", "Cormorant Garamond", "Noto Sans Devanagari", "Noto Sans Telugu", ui-monospace, Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-palette]) {
+    --bg: #15141D;
+    --surface: #1E1D29;
+    --ink: #ECEAF4;
+    --muted: #A19EB8;
+    --line: #34324A;
+    --accent: #E8675C;
+    --accent-ink: #1A0F0E;
+    --krishna: #191925;
+    --shukla: #22212F;
+    --gold-bg: #3A2E10;
+    --gold: #F2C65A;
+    --shunya-bg: #3D1A2B;
+    --shunya: #F49BC0;
+    --adhika-bg: #1A2843;
+    --adhika: #9CC0F7;
+    --teal: #49BFA8;
+    --teal-bg: #14332E;
+    --moon-lit: #F2D27A;
+    --moon-dark: #4A4866;
+    color-scheme: dark;
+  }
+}
+
+html:root[data-palette="kumkum"] {
+  --bg: #F4F5F8;
+  --surface: #FFFFFF;
+  --ink: #1D1B2B;
+  --muted: #625F78;
+  --line: #DDDBE6;
+  --accent: #A6281F;
+  --accent-ink: #FFFFFF;
+  --krishna: #EBEDF4;
+  --shukla: #FFFFFF;
+  --gold-bg: #FFF1CC;
+  --gold: #8A5A00;
+  --shunya-bg: #FBE3EC;
+  --shunya: #9A1B55;
+  --adhika-bg: #E3ECFB;
+  --adhika: #1F4E9A;
+  --teal: #1F8A76;
+  --teal-bg: #E0F4F0;
+  --moon-lit: #F2D27A;
+  --moon-dark: #3A3850;
+  color-scheme: light;
+}
+
+html:root[data-palette="talapatra"] {
+  --bg: #E6D7B5;
+  --surface: #F1E6CB;
+  --ink: #33230F;
+  --muted: #6E5A3A;
+  --line: #CDB88C;
+  --accent: #8A2E12;
+  --accent-ink: #FBF1DC;
+  --krishna: #E3D1A9;
+  --shukla: #F1E6CB;
+  --gold-bg: #F3D98E;
+  --gold: #6B4400;
+  --shunya-bg: #EBC3B0;
+  --shunya: #7E2412;
+  --adhika-bg: #D6D8B8;
+  --adhika: #3F5320;
+  --teal: #1B6E5E;
+  --teal-bg: #D6E6DC;
+  --moon-lit: #FFF4CC;
+  --moon-dark: #5A4528;
+  color-scheme: light;
+}
+
+html:root[data-palette="tulasi"] {
+  --bg: #EDF2EA;
+  --surface: #FAFCF8;
+  --ink: #182619;
+  --muted: #56695A;
+  --line: #D2DDCF;
+  --accent: #2E6B3B;
+  --accent-ink: #FFFFFF;
+  --krishna: #E2EBDF;
+  --shukla: #FAFCF8;
+  --gold-bg: #FBEFC4;
+  --gold: #7A5600;
+  --shunya-bg: #F6E0E3;
+  --shunya: #8E2335;
+  --adhika-bg: #DCE7F2;
+  --adhika: #285A86;
+  --teal: #1E7A68;
+  --teal-bg: #D9EFEA;
+  --moon-lit: #F2D27A;
+  --moon-dark: #34503A;
+  color-scheme: light;
+}
+
+html:root[data-palette="kesari"] {
+  --bg: #FFF3E6;
+  --surface: #FFFBF6;
+  --ink: #2B1A0C;
+  --muted: #77593D;
+  --line: #F0D9BF;
+  --accent: #C4520B;
+  --accent-ink: #FFFFFF;
+  --krishna: #FBE8D4;
+  --shukla: #FFFBF6;
+  --gold-bg: #FFE59A;
+  --gold: #7C4E00;
+  --shunya-bg: #F9D9DB;
+  --shunya: #9B1E2C;
+  --adhika-bg: #E2E6F6;
+  --adhika: #3A4E9A;
+  --teal: #1F7E6C;
+  --teal-bg: #DFF2EE;
+  --moon-lit: #FFD877;
+  --moon-dark: #6B4A2E;
+  color-scheme: light;
+}
+
+html:root[data-palette="purnima"] {
+  --bg: #E9EDF6;
+  --surface: #F8FAFE;
+  --ink: #18203A;
+  --muted: #5A6487;
+  --line: #CFD6E8;
+  --accent: #3A4CA6;
+  --accent-ink: #FFFFFF;
+  --krishna: #DFE4F1;
+  --shukla: #F8FAFE;
+  --gold-bg: #FAF0CF;
+  --gold: #765400;
+  --shunya-bg: #F1DEEC;
+  --shunya: #87246A;
+  --adhika-bg: #D8EDEA;
+  --adhika: #1E6B63;
+  --teal: #1E6B63;
+  --teal-bg: #D8EDEA;
+  --moon-lit: #FFF7DC;
+  --moon-dark: #8C96B6;
+  color-scheme: light;
+}
+
+html:root[data-palette="gopuram"] {
+  --bg: #24090C;
+  --surface: #341215;
+  --ink: #F6E6C8;
+  --muted: #C9A98C;
+  --line: #52262A;
+  --accent: #E3A83C;
+  --accent-ink: #2A0B0E;
+  --krishna: #2C0E11;
+  --shukla: #3C171A;
+  --gold-bg: #5A3A10;
+  --gold: #FFD27A;
+  --shunya-bg: #4F1A2C;
+  --shunya: #F7A7C4;
+  --adhika-bg: #1E2E44;
+  --adhika: #A9C8F2;
+  --teal: #5CD6BE;
+  --teal-bg: #193833;
+  --moon-lit: #F2D27A;
+  --moon-dark: #5A2A2E;
+  color-scheme: dark;
+}
+
+html:root[data-palette="amavasya"] {
+  --bg: #0F1020;
+  --surface: #181A30;
+  --ink: #E6E7F5;
+  --muted: #9A9DC0;
+  --line: #2C2F4D;
+  --accent: #9EA8FF;
+  --accent-ink: #0F1020;
+  --krishna: #13152A;
+  --shukla: #1D2038;
+  --gold-bg: #3A3014;
+  --gold: #F2CB63;
+  --shunya-bg: #3A1A33;
+  --shunya: #F2A2D2;
+  --adhika-bg: #152C3A;
+  --adhika: #8FD3EF;
+  --teal: #5EEAD4;
+  --teal-bg: #132F32;
+  --moon-lit: #F4E3A6;
+  --moon-dark: #34375A;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--display);
+}
+.font-serif-title {
+  font-family: var(--serif);
+}
+.font-mono-num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.devanagari {
+  font-family: "Tiro Devanagari Sanskrit", serif;
+}
+.telugu {
+  font-family: "Ramabhadra", sans-serif;
+}
+
+/* South Indian Rasi Chart Grid from Nitya Panchangam + Karaka highlights */
+.rchart {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  aspect-ratio: 1;
+  width: 100%;
+  border: 1.5px solid var(--ink);
+  background: var(--surface);
+}
+
+.rc {
+  border: 1px solid var(--line);
+  padding: 5px 6px;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 3px 6px;
+  min-width: 0;
+  overflow: hidden;
+  transition: background-color 0.15s ease;
+}
+
+.rc.lagna {
+  background: var(--gold-bg);
+}
+
+.rc.holds-a {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.rc.holds-b {
+  box-shadow: inset 0 0 0 2px var(--teal);
+}
+
+.rc.holds-a.holds-b {
+  box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px var(--teal);
+}
+
+.rc .rs {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.rc .cell-tags {
+  position: absolute;
+  left: 4px;
+  bottom: 2px;
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.cell-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.cell-tag.t-a {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.cell-tag.t-b {
+  background: var(--teal);
+  color: #ffffff;
+}
+
+.pl {
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.08;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.pl sup {
+  font-size: 8px;
+  color: var(--accent);
+}
+
+.pl i {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 9px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.pl.la {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pl.karaka-a {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.pl.karaka-a i,
+.pl.karaka-a sup {
+  color: var(--accent-ink);
+  opacity: 0.9;
+}
+
+.pl.karaka-b {
+  background: var(--teal);
+  color: #ffffff;
+}
+.pl.karaka-b i,
+.pl.karaka-b sup {
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.pl.karaka-both {
+  background: linear-gradient(110deg, var(--accent) 0 50%, var(--teal) 50% 100%);
+  color: #ffffff;
+}
+.pl.karaka-both i,
+.pl.karaka-both sup {
+  color: #ffffff;
+}
+
+.rcenter {
+  grid-row: 2 / 4;
+  grid-column: 2 / 4;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px;
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+}
+
+.rcenter b {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+@media (max-width: 440px) {
+  .pl {
+    font-size: 11px;
+  }
+  .pl i {
+    font-size: 8px;
+  }
+}

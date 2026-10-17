@@ -1,0 +1,6 @@
+{
+  "name": "Jyotiṣa & Kaṭapayādi Wealth Ephemeris",
+  "description": "Cross-platform Vedic astrology workbench featuring Nitya Panchanga, South Indian D1/D9/D10/D60 charts, multi-script Kaṭapayādi name numerology, and 4th Lord Money Yoga wealth accumulation cycles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
