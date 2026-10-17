@@ -8,6 +8,9 @@ import {
   type ScriptTarget,
 } from '../utils/katapayadi.ts';
 import { SIGN_LORDS } from '../utils/constants.ts';
+import { ScriptModeToggle } from './ScriptModeToggle.tsx';
+import { Segmented } from './ui/Segmented.tsx';
+import { CollapsibleToggle, collapsedOnMobile } from './ui/Collapsible.tsx';
 
 interface KatapayadiViewProps {
   name: string;
@@ -40,6 +43,8 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
   const [gridScript, setGridScript] = useState<ScriptTarget>('deva');
   const [selectedLetterToast, setSelectedLetterToast] = useState<string | null>(null);
   const [showKeyboard, setShowKeyboard] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const kbScript: ScriptTarget = scriptMode === 'tel' ? 'tel' : romanTarget;
   const kbSet = KEYBOARD_SETS[kbScript];
@@ -57,35 +62,75 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
   const trackBKaraka = SIGN_LORDS[trackBLordSign];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 md:gap-5">
       {/* Live Breakdown & Syllable Studio */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-5">
         {/* Left 7 Cols: Syllable Breakdown & Result Strip */}
-        <section className="lg:col-span-7 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 sm:p-5 flex flex-col gap-4">
+        <section className="lg:col-span-7 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 sm:p-5 flex flex-col gap-3 md:gap-4">
           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--line)]">
-            <div>
-              <h2 className="font-display text-2xl font-normal text-[var(--ink)] m-0">
-                Kaṭapayādi Saṅkhyā — Syllable Breakdown
+            <div className="max-md:w-full">
+              <h2 className="m-title font-display text-xl md:text-2xl font-normal text-[var(--ink)] m-0">
+                <span className="md:hidden">Syllable Breakdown</span>
+                <span className="max-md:hidden">Kaṭapayādi Saṅkhyā — Syllable Breakdown</span>
               </h2>
-              <p className="text-xs text-[var(--muted)] m-0 mt-0.5">
+              <p id="katapayadi-rules" className={`text-xs text-[var(--muted)] m-0 mt-0.5 ${collapsedOnMobile(showRules)}`}>
                 Follows Śaṅkaravarman&apos;s <em>Sadratnamālā</em>: vowels &amp; न/ञ = 0, conjuncts keep
                 only the final consonant, vocalic ṛ (ृ/ృ) overrides to र = 2, and digits reverse (
                 <em>aṅkānāṃ vāmato gatiḥ</em>).
               </p>
+              <CollapsibleToggle
+                open={showRules}
+                onToggle={() => setShowRules(!showRules)}
+                label="How the digits are read"
+                controls="katapayadi-rules"
+                className="mt-1"
+              />
             </div>
 
             <button
               type="button"
               onClick={() => setShowKeyboard(!showKeyboard)}
-              className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] cursor-pointer"
+              className="max-md:hidden px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] cursor-pointer"
             >
               {showKeyboard ? 'Hide On-Screen Keyboard' : 'Show Devanagari/Telugu Keyboard'}
             </button>
           </div>
 
-          {/* Quick sample buttons */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-[var(--muted)] mr-1">Test classic examples:</span>
+          {/* Phones: the birth editor is folded away, so the name being audited is edited here */}
+          <div className="md:hidden flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <label
+                htmlFor="studio-name-input"
+                className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]"
+              >
+                Name
+              </label>
+              <ScriptModeToggle value={scriptMode} onChange={onScriptModeChange} />
+            </div>
+            <input
+              id="studio-name-input"
+              type="text"
+              value={name}
+              onChange={(e) => onNameChange(e.target.value)}
+              placeholder={
+                scriptMode === 'roman'
+                  ? 'Enter name (e.g. Chiranjeevi)'
+                  : scriptMode === 'deva'
+                  ? 'नाम लिखें (उदा. गणेश)'
+                  : 'పేరు రాయండి (ఉదా. భారత)'
+              }
+              className={`w-full h-11 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 text-base text-[var(--ink)] focus:outline-2 focus:outline-[var(--accent)] ${
+                scriptMode === 'deva' ? 'devanagari' : scriptMode === 'tel' ? 'telugu' : ''
+              }`}
+            />
+          </div>
+
+          {/* Quick sample buttons (one swipeable row on phones) */}
+          <div className="flex flex-wrap max-md:flex-nowrap max-md:overflow-x-auto max-md:-mx-3 max-md:px-3 no-scrollbar items-center gap-1.5">
+            <span className="text-xs text-[var(--muted)] mr-1 shrink-0">
+              <span className="md:hidden">Try:</span>
+              <span className="max-md:hidden">Test classic examples:</span>
+            </span>
             {SAMPLE_WORDS.map((sw) => (
               <button
                 key={sw.label}
@@ -94,7 +139,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
                   onScriptModeChange(sw.mode);
                   onNameChange(sw.val);
                 }}
-                className={`px-2.5 py-1 text-xs rounded-md border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] cursor-pointer ${
+                className={`px-2.5 py-1 max-md:h-10 max-md:px-3 max-md:text-sm max-md:shrink-0 max-md:whitespace-nowrap text-xs rounded-md border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] cursor-pointer ${
                   sw.mode === 'tel' ? 'telugu' : 'devanagari'
                 }`}
               >
@@ -102,6 +147,14 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
               </button>
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowKeyboard(!showKeyboard)}
+            className="md:hidden w-full h-11 text-sm font-medium rounded-lg border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] cursor-pointer"
+          >
+            {showKeyboard ? 'Hide On-Screen Keyboard' : 'Show Devanagari/Telugu Keyboard'}
+          </button>
 
           {/* Optional Virtual Keyboard */}
           {showKeyboard && (
@@ -148,7 +201,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
                     key={k}
                     type="button"
                     onClick={() => handleInsertChar(k)}
-                    className={`min-w-[34px] h-8 px-1.5 rounded border border-[var(--line)] bg-[var(--surface)] hover:border-[var(--accent)] text-sm cursor-pointer ${
+                    className={`min-w-[34px] h-8 max-md:h-10 max-md:min-w-10 px-1.5 rounded border border-[var(--line)] bg-[var(--surface)] hover:border-[var(--accent)] text-sm cursor-pointer ${
                       kbScript === 'tel' ? 'telugu' : 'devanagari'
                     }`}
                   >
@@ -163,7 +216,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
                     key={k}
                     type="button"
                     onClick={() => handleInsertChar(k)}
-                    className={`min-w-[32px] h-8 px-1.5 rounded border border-[var(--line)] bg-[var(--surface)] hover:border-[var(--accent)] text-sm cursor-pointer ${
+                    className={`min-w-[32px] h-8 max-md:h-10 max-md:min-w-10 px-1.5 rounded border border-[var(--line)] bg-[var(--surface)] hover:border-[var(--accent)] text-sm cursor-pointer ${
                       kbScript === 'tel' ? 'telugu' : 'devanagari'
                     }`}
                   >
@@ -173,7 +226,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNameChange('')}
-                  className="ml-auto px-2.5 h-8 rounded border border-[var(--line)] bg-[var(--surface)] text-xs text-[var(--accent)] cursor-pointer"
+                  className="ml-auto px-2.5 h-8 max-md:h-10 rounded border border-[var(--line)] bg-[var(--surface)] text-xs text-[var(--accent)] cursor-pointer"
                 >
                   Clear
                 </button>
@@ -186,7 +239,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
             <table className="w-full border-collapse text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-[var(--line)] text-[11px] uppercase tracking-wider text-[var(--muted)] font-mono-num">
-                  <th className="py-2 px-3">#</th>
+                  <th className="py-2 px-3 max-md:hidden">#</th>
                   <th className="py-2 px-3">Akṣara (Syllable)</th>
                   <th className="py-2 px-3">Rule Classification</th>
                   <th className="py-2 px-3 text-right">Varṇāṅka (Digit)</th>
@@ -203,7 +256,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
                           isDropped ? 'opacity-50 line-through' : ''
                         }`}
                       >
-                        <td className="py-2 px-3 font-mono-num text-xs text-[var(--muted)]">
+                        <td className="py-2 px-3 max-md:hidden font-mono-num text-xs text-[var(--muted)]">
                           {idx + 1}
                         </td>
                         <td
@@ -242,7 +295,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
           </div>
 
           {/* Result Summary Strip */}
-          <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3 md:p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
             <div>
               <span className="text-[11px] uppercase tracking-wider text-[var(--muted)] block">
                 Reading Order
@@ -263,7 +316,7 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
               <span className="text-[11px] uppercase tracking-wider text-[var(--muted)] block">
                 Name Rāśi (mod 12)
               </span>
-              <span className="font-display text-xl text-[var(--ink)]">
+              <span className="font-display text-lg md:text-xl text-[var(--ink)]">
                 {katapayadi.rashi.deva} · {katapayadi.rashi.en}
               </span>
             </div>
@@ -279,87 +332,83 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
         </section>
 
         {/* Right 5 Cols: Varga Cipher Matrix & Roman Guide */}
-        <section className="lg:col-span-5 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 sm:p-5 flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2">
+        <section className="lg:col-span-5 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 sm:p-5 flex flex-col gap-3 md:gap-4">
+          <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="font-display text-xl font-normal text-[var(--ink)] m-0">
-                The Kaṭapayādi Varga Cipher Grid
+              <h2 className="m-title font-display text-xl font-normal text-[var(--ink)] m-0">
+                <span className="md:hidden">Varga Cipher Grid</span>
+                <span className="max-md:hidden">The Kaṭapayādi Varga Cipher Grid</span>
               </h2>
               <p className="text-xs text-[var(--muted)] m-0">
-                Click any consonant to inspect its digit value (1–9, 0).
+                <span className="md:hidden">Tap a consonant to add it to the name and see its digit.</span>
+                <span className="max-md:hidden">Click any consonant to inspect its digit value (1–9, 0).</span>
               </p>
             </div>
-            <div className="inline-flex border border-[var(--line)] rounded-md overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setGridScript('deva')}
-                className={`px-2.5 py-1 text-xs cursor-pointer ${
-                  gridScript === 'deva'
-                    ? 'bg-[var(--accent)] text-[var(--accent-ink)] font-medium'
-                    : 'bg-[var(--surface)] text-[var(--muted)]'
-                }`}
-              >
-                Devanagari
-              </button>
-              <button
-                type="button"
-                onClick={() => setGridScript('tel')}
-                className={`px-2.5 py-1 text-xs cursor-pointer ${
-                  gridScript === 'tel'
-                    ? 'bg-[var(--accent)] text-[var(--accent-ink)] font-medium'
-                    : 'bg-[var(--surface)] text-[var(--muted)]'
-                }`}
-              >
-                Telugu
-              </button>
-            </div>
+            <Segmented
+              ariaLabel="Cipher grid script"
+              value={gridScript}
+              onChange={setGridScript}
+              className="grid grid-cols-2 md:inline-flex"
+              buttonClassName="px-2.5 py-1 text-xs max-md:min-h-10"
+              inactiveClassName="bg-[var(--surface)] text-[var(--muted)]"
+              options={[
+                { id: 'deva', label: 'Devanagari' },
+                { id: 'tel', label: 'Telugu' },
+              ]}
+            />
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-center text-xs">
               <thead>
                 <tr className="bg-[var(--bg)] border-b border-[var(--line)] font-mono-num">
-                  <th className="py-1.5 px-2 text-left">Varga</th>
+                  <th className="py-1.5 px-2 max-md:px-1 text-left">
+                    <span className="max-md:hidden">Varga</span>
+                  </th>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((d) => (
-                    <th key={d} className="py-1.5 px-1.5 font-bold text-[var(--accent)]">
+                    <th key={d} className="py-1.5 px-1.5 max-md:px-0.5 font-bold text-[var(--accent)]">
                       {d}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {VARGA_TABLE_ROWS[gridScript].map((row) => (
-                  <tr key={row.label} className="border-b border-[var(--line)]">
-                    <th className="py-2 px-2 text-left font-serif-title text-xs text-[var(--muted)] whitespace-nowrap">
-                      {row.label.split(' · ')[1]}
-                    </th>
-                    {row.letters.map((letter, idx) => (
-                      <td key={idx} className="p-1">
-                        {letter ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedLetterToast(
-                                `${letter} = ${CONSONANT_VALUES[letter]} (inserted into name)`
-                              );
-                              handleInsertChar(letter);
-                            }}
-                            className={`w-full py-1.5 rounded border border-[var(--line)] bg-[var(--bg)] hover:border-[var(--accent)] cursor-pointer flex flex-col items-center ${
-                              gridScript === 'tel' ? 'telugu' : 'devanagari'
-                            }`}
-                          >
-                            <span className="text-sm leading-none">{letter}</span>
-                            <span className="font-mono-num text-[9px] text-[var(--muted)] mt-0.5">
-                              {CONSONANT_VALUES[letter]}
-                            </span>
-                          </button>
-                        ) : (
-                          <span className="text-[var(--muted)] opacity-40">–</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {VARGA_TABLE_ROWS[gridScript].map((row) => {
+                  const vargaName = row.label.split(' · ')[1];
+                  return (
+                    <tr key={row.label} className="border-b border-[var(--line)]">
+                      <th className="py-2 px-2 max-md:px-1 text-left font-serif-title text-xs text-[var(--muted)] whitespace-nowrap">
+                        <span className="md:hidden">{vargaName.replace('-varga', '')}</span>
+                        <span className="max-md:hidden">{vargaName}</span>
+                      </th>
+                      {row.letters.map((letter, idx) => (
+                        <td key={idx} className="p-1 max-md:p-0.5">
+                          {letter ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedLetterToast(
+                                  `${letter} = ${CONSONANT_VALUES[letter]} (inserted into name)`
+                                );
+                                handleInsertChar(letter);
+                              }}
+                              className={`w-full py-1.5 max-md:min-h-11 max-md:justify-center rounded border border-[var(--line)] bg-[var(--bg)] hover:border-[var(--accent)] cursor-pointer flex flex-col items-center ${
+                                gridScript === 'tel' ? 'telugu' : 'devanagari'
+                              }`}
+                            >
+                              <span className="text-sm leading-none">{letter}</span>
+                              <span className="font-mono-num text-[9px] max-md:text-[10px] text-[var(--muted)] mt-0.5">
+                                {CONSONANT_VALUES[letter]}
+                              </span>
+                            </button>
+                          ) : (
+                            <span className="text-[var(--muted)] opacity-40">–</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -370,12 +419,22 @@ export const KatapayadiView: React.FC<KatapayadiViewProps> = ({
             </div>
           )}
 
-          {/* Roman Transliteration Reference */}
-          <div className="bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3 text-xs flex flex-col gap-1.5">
+          {/* Roman Transliteration Reference (folded on phones) */}
+          <CollapsibleToggle
+            open={showGuide}
+            onToggle={() => setShowGuide(!showGuide)}
+            label="English / Roman typing guide"
+            controls="transliteration-guide"
+            className="-my-1"
+          />
+          <div
+            id="transliteration-guide"
+            className={`bg-[var(--bg)] border border-[var(--line)] rounded-lg p-3 text-xs flex flex-col gap-1.5 ${collapsedOnMobile(showGuide)}`}
+          >
             <strong className="text-[var(--ink)] uppercase tracking-wider text-[11px]">
               English / Roman Transliteration Guide
             </strong>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[var(--muted)] font-mono-num">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[var(--muted)] font-mono-num">
               <span>Retroflex: T, Th, D, Dh, N</span>
               <span>Dental: t, th, d, dh, n</span>
               <span>Palatal/Retro Sibilant: sh / Sh</span>

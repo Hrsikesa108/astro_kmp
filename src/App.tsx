@@ -5,7 +5,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-  CITIES,
+  CalendarDays,
+  Coins,
+  Download,
+  Languages,
+  LayoutGrid,
+  Settings as SettingsIcon,
+} from 'lucide-react';
+import {
   SAMPLE_PROFILES,
   type CityLocation,
   type SampleProfile,
@@ -18,6 +25,7 @@ import {
 import { computeChartSnapshot } from './utils/astrology.ts';
 import { computeMoneyYogaRead } from './utils/moneyYoga.ts';
 import { usePWAInstall, useOnlineStatus } from './hooks/usePWAInstall.ts';
+import { isNative, syncSystemBars } from './utils/native.ts';
 import { BirthAndNameBar } from './components/BirthAndNameBar.tsx';
 import { DashboardView } from './components/DashboardView.tsx';
 import { MoneyYogaView } from './components/MoneyYogaView.tsx';
@@ -26,6 +34,20 @@ import { PanchangaView } from './components/PanchangaView.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 
 type ActiveTab = 'dashboard' | 'money' | 'katapayadi' | 'panchanga';
+
+const MOBILE_TABS = [
+  { id: 'dashboard', short: 'Charts', Icon: LayoutGrid },
+  { id: 'money', short: '4th Lord', Icon: Coins },
+  { id: 'katapayadi', short: 'Kaṭapayādi', Icon: Languages },
+  { id: 'panchanga', short: 'Pañcāṅga', Icon: CalendarDays },
+] as const;
+
+const NON_TYPING_INPUTS = new Set(['button', 'checkbox', 'radio', 'range', 'date', 'time', 'submit']);
+
+function isTextEntry(el: Element | null): boolean {
+  if (el instanceof HTMLTextAreaElement) return true;
+  return el instanceof HTMLInputElement && !NON_TYPING_INPUTS.has(el.type);
+}
 
 export default function App() {
   const [name, setName] = useState<string>(() => {
@@ -77,9 +99,17 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  // While a text field has focus the soft keyboard is up; the tab bar would only eat space.
+  const [typing, setTyping] = useState(false);
 
   const { isInstallable, isInstalled, install } = usePWAInstall();
   const isOnline = useOnlineStatus();
+  const showInstall = !isNative && !isInstalled && isInstallable;
+
+  const selectTab = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0 });
+  };
 
   // Sync theme to document root
   useEffect(() => {
@@ -92,6 +122,27 @@ export default function App() {
       localStorage.setItem('jyotisa.theme', themeId);
     } catch {}
   }, [themeId]);
+
+  // Android status/navigation bar icons follow the palette (and the system setting on Auto)
+  useEffect(() => {
+    syncSystemBars(themeId);
+    if (themeId !== 'auto') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => syncSystemBars('auto');
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [themeId]);
+
+  useEffect(() => {
+    // focusout fires before the next focusin, so read activeElement once focus has settled
+    const onFocusChange = () => setTimeout(() => setTyping(isTextEntry(document.activeElement)), 0);
+    document.addEventListener('focusin', onFocusChange);
+    document.addEventListener('focusout', onFocusChange);
+    return () => {
+      document.removeEventListener('focusin', onFocusChange);
+      document.removeEventListener('focusout', onFocusChange);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -152,67 +203,72 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)] pb-20 md:pb-12">
-      {/* Strict 3-Zone Top Bar */}
-      <header className="sticky top-0 z-30 bg-[var(--surface)] border-b border-[var(--line)] px-4 sm:px-6 h-14 flex items-center justify-between gap-4 sm:gap-8">
-        {/* Zone 1: Single-line Brand Title */}
-        <a
-          href="#top"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveTab('dashboard');
-          }}
-          className="font-display text-base sm:text-xl text-[var(--ink)] no-underline whitespace-nowrap shrink-0 truncate max-w-[65vw] sm:max-w-none"
-        >
-          Jyotiṣa &amp; Kaṭapayādi Ephemeris
-        </a>
-
-        {/* Zone 2: 4 Single-line Navigation Links (Desktop) */}
-        <nav
-          aria-label="Primary sections"
-          className="hidden md:flex items-center gap-6 text-sm font-medium"
-        >
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveTab(item.id)}
-              aria-current={activeTab === item.id ? 'page' : undefined}
-              className={`py-1 cursor-pointer transition-colors whitespace-nowrap shrink-0 border-b-2 ${
-                activeTab === item.id
-                  ? 'border-[var(--accent)] text-[var(--ink)] font-semibold'
-                  : 'border-transparent text-[var(--muted)] hover:text-[var(--ink)]'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Zone 3: Primary Action (Settings / Install) */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {!isInstalled && isInstallable && (
-            <button
-              type="button"
-              onClick={install}
-              className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-[var(--accent-ink)] text-xs font-medium cursor-pointer whitespace-nowrap shrink-0"
-            >
-              Install App
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setSettingsOpen(true)}
-            aria-label="Open Settings and Theme Switcher"
-            className="px-3.5 py-1.5 rounded-lg border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] text-xs font-medium cursor-pointer whitespace-nowrap shrink-0"
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)] overflow-x-clip pl-[var(--safe-left)] pr-[var(--safe-right)] pb-[calc(var(--tabbar-h)+var(--safe-bottom)+1rem)] md:pb-12">
+      {/* Strict 3-Zone Top Bar (extends under the Android status bar) */}
+      <header className="sticky top-0 z-30 bg-[var(--surface)] pt-[var(--safe-top)]">
+        <div className="px-3 sm:px-6 h-14 border-b border-[var(--line)] flex items-center justify-between gap-3 sm:gap-8">
+          {/* Zone 1: Single-line Brand Title */}
+          <a
+            href="#top"
+            onClick={(e) => {
+              e.preventDefault();
+              selectTab('dashboard');
+            }}
+            className="font-display text-lg sm:text-xl text-[var(--ink)] no-underline whitespace-nowrap min-w-0 truncate md:shrink-0 max-md:py-2"
           >
-            Settings
-          </button>
+            Jyotiṣa &amp; Kaṭapayādi<span className="max-sm:hidden"> Ephemeris</span>
+          </a>
+
+          {/* Zone 2: 4 Single-line Navigation Links (Desktop) */}
+          <nav
+            aria-label="Primary sections"
+            className="hidden md:flex items-center gap-6 text-sm font-medium"
+          >
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => selectTab(item.id)}
+                aria-current={activeTab === item.id ? 'page' : undefined}
+                className={`py-1 cursor-pointer transition-colors whitespace-nowrap shrink-0 border-b-2 ${
+                  activeTab === item.id
+                    ? 'border-[var(--accent)] text-[var(--ink)] font-semibold'
+                    : 'border-transparent text-[var(--muted)] hover:text-[var(--ink)]'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Zone 3: Primary Action (Settings / Install) — icon buttons on phones */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {showInstall && (
+              <button
+                type="button"
+                onClick={install}
+                aria-label="Install App"
+                className="inline-flex items-center justify-center w-11 h-11 md:w-auto md:h-auto md:px-3 md:py-1.5 rounded-lg bg-[var(--accent)] text-[var(--accent-ink)] text-xs font-medium cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <Download className="size-5 md:hidden" aria-hidden="true" />
+                <span className="max-md:hidden">Install App</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Open Settings and Theme Switcher"
+              className="inline-flex items-center justify-center w-11 h-11 md:w-auto md:h-auto md:px-3.5 md:py-1.5 rounded-lg border border-[var(--line)] bg-[var(--bg)] text-[var(--ink)] hover:border-[var(--accent)] text-xs font-medium cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <SettingsIcon className="size-5 md:hidden" aria-hidden="true" />
+              <span className="max-md:hidden">Settings</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main Content Container */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-5 flex flex-col gap-5 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-3 md:pt-5 flex flex-col gap-3 md:gap-5 flex-1">
         {/* Always-Accessible Birth & Name Input Bar */}
         <BirthAndNameBar
           name={name}
@@ -239,7 +295,7 @@ export default function App() {
             katapayadi={katapayadi}
             moneyRead={moneyRead}
             purnimanta={purnimanta}
-            onNavigateTab={setActiveTab}
+            onNavigateTab={selectTab}
           />
         )}
 
@@ -269,7 +325,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-8 pb-4 text-xs text-[var(--muted)] flex flex-wrap items-center justify-between gap-2">
+      <footer className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-8 pb-4 text-xs text-[var(--muted)] hidden md:flex flex-wrap items-center justify-between gap-2">
         <span>
           Sidereal positions computed with true Lahiri (Chitrapaksha) ayanāṃśa via Astronomy Engine ·
           Parāśara D1, D9, D10 &amp; D60 vargas · Kaṭapayādi Saṅkhyā (Sadratnamālā)
@@ -279,42 +335,51 @@ export default function App() {
         </span>
       </footer>
 
-      {/* Mobile Bottom Navigation Bar (Android / Touch Ergonomics, <= 15% viewport height) */}
+      {/* Mobile Bottom Navigation Bar (Android / Touch Ergonomics), padded above the system nav bar */}
       <nav
         aria-label="Mobile navigation"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--line)] grid grid-cols-4 h-14"
+        className={`md:hidden fixed bottom-0 inset-x-0 z-40 bg-[var(--surface)] border-t border-[var(--line)] shadow-[0_-4px_16px_rgb(0_0_0/0.08)] pb-[var(--safe-bottom)] pl-[var(--safe-left)] pr-[var(--safe-right)] ${
+          typing ? 'hidden' : ''
+        }`}
       >
-        {(
-          [
-            { id: 'dashboard', short: 'Charts' },
-            { id: 'money', short: '4th Lord' },
-            { id: 'katapayadi', short: 'Kaṭapayādi' },
-            { id: 'panchanga', short: 'Pañcāṅga' },
-          ] as const
-        ).map((item) => {
-          const active = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveTab(item.id)}
-              className={`min-h-[44px] flex flex-col items-center justify-center text-xs cursor-pointer transition-colors ${
-                active
-                  ? 'text-[var(--accent)] font-semibold bg-[var(--bg)]'
-                  : 'text-[var(--muted)]'
-              }`}
-            >
-              <span className="truncate">{item.short}</span>
-            </button>
-          );
-        })}
+        <div className="grid grid-cols-4 h-[var(--tabbar-h)]">
+          {MOBILE_TABS.map(({ id, short, Icon }) => {
+            const active = activeTab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => selectTab(id)}
+                aria-current={active ? 'page' : undefined}
+                className="flex flex-col items-center justify-center gap-1 min-w-0 cursor-pointer"
+              >
+                <span
+                  className={`flex items-center justify-center h-8 w-14 rounded-full transition-colors ${
+                    active
+                      ? 'bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] text-[var(--accent)]'
+                      : 'text-[var(--muted)]'
+                  }`}
+                >
+                  <Icon className="size-5" strokeWidth={active ? 2.4 : 1.8} aria-hidden="true" />
+                </span>
+                <span
+                  className={`max-w-full truncate px-1 text-[11px] leading-none ${
+                    active ? 'text-[var(--ink)] font-semibold' : 'text-[var(--muted)]'
+                  }`}
+                >
+                  {short}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Offline Toast Banner */}
       {!isOnline && (
         <div
           role="status"
-          className="fixed bottom-16 md:bottom-4 left-4 z-50 rounded-lg bg-[var(--gold-bg)] text-[var(--gold)] border border-[var(--gold)] px-3 py-1.5 text-xs font-medium shadow-md"
+          className="fixed bottom-[calc(var(--tabbar-h)+var(--safe-bottom)+0.5rem)] md:bottom-4 left-4 z-50 rounded-lg bg-[var(--gold-bg)] text-[var(--gold)] border border-[var(--gold)] px-3 py-1.5 text-xs font-medium shadow-md"
         >
           Offline Mode — Ephemeris &amp; Kaṭapayādi engines running locally.
         </div>

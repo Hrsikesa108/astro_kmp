@@ -24,6 +24,14 @@
   --serif: "Cormorant Garamond", "Source Serif 4", "Tiro Devanagari Sanskrit", Georgia, serif;
   --body: "IBM Plex Sans", "Source Serif 4", "Cormorant Garamond", "Noto Sans Devanagari", "Noto Sans Telugu", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", "Source Serif 4", "Cormorant Garamond", "Noto Sans Devanagari", "Noto Sans Telugu", ui-monospace, Menlo, Consolas, monospace;
+
+  /* System bar insets: env() covers browsers/PWA; --safe-area-inset-* is injected by
+     Capacitor's SystemBars plugin (insetsHandling: 'css') inside the Android app. */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+  --tabbar-h: 4rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -403,11 +411,85 @@ body {
   color: var(--ink);
 }
 
-@media (max-width: 440px) {
+/* Cell wrappers only take part in layout on phones (see below); elsewhere their
+   children behave exactly as direct children of .rc */
+.rc-pl,
+.rc-foot {
+  display: contents;
+}
+
+/* Horizontally scrollable chip rows */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Phones: one chart fills the width, so give planets room instead of clipping them */
+@media (max-width: 767px) {
+  .chart-wrap {
+    container-type: inline-size;
+  }
+
+  /* Rows stay square (25cqw = one column) but grow when a sign holds many planets */
+  .rchart {
+    aspect-ratio: auto;
+    grid-template-rows: repeat(4, minmax(25cqw, auto));
+  }
+
+  /* Planets on top, tags + sign abbreviation in a footer row, so they can never overlap */
+  .rc {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 3px;
+    padding: 5px 4px 3px 5px;
+  }
+  .rc-pl {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 3px 5px;
+  }
+  .rc-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 2px;
+  }
+  .rc .cell-tags,
+  .rc .rs {
+    position: static;
+  }
+  .rc .cell-tags {
+    flex-wrap: wrap;
+    margin-right: auto;
+  }
+
   .pl {
-    font-size: 11px;
+    font-size: 12px;
   }
   .pl i {
-    font-size: 8px;
+    font-size: 10px;
+  }
+  .pl sup {
+    font-size: 9px;
+  }
+  .rc .rs {
+    font-size: 10px;
+  }
+  .cell-tag {
+    font-size: 10px;
+  }
+  .rcenter b {
+    font-size: 18px;
+  }
+
+  /* Section titles get an accent rule so screens read as distinct blocks */
+  .m-title {
+    border-left: 3px solid var(--accent);
+    padding-left: 0.5rem;
+    line-height: 1.2;
   }
 }

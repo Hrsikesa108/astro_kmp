@@ -1,6 +1,6 @@
 import React from 'react';
 import { RASHI_META } from '../utils/constants.ts';
-import { type AstrologicalChartSnapshot } from '../utils/astrology.ts';
+import { type AstrologicalChartSnapshot, type PanchangaSpan } from '../utils/astrology.ts';
 
 interface PanchangaViewProps {
   snapshot: AstrologicalChartSnapshot;
@@ -15,29 +15,60 @@ function renderMoonSVG(phaseDeg: number) {
     c > 0 === wax ? 0 : 1
   } 26 4Z`;
   return (
-    <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true" className="shrink-0">
+    <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true" className="shrink-0 max-md:size-11">
       <circle cx="26" cy="26" r="22" fill="var(--moon-dark)" />
       <path d={lit} fill="var(--moon-lit)" />
     </svg>
   );
 }
 
+/** One Pañcāṅga limb: the span in force at birth, then the ones that follow. */
+const LimbCard: React.FC<{ label: string; shortLabel: string; spans: PanchangaSpan[] }> = ({
+  label,
+  shortLabel,
+  spans,
+}) => (
+  <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 md:p-4 flex flex-col gap-2">
+    <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
+      <span className="md:hidden">{shortLabel}</span>
+      <span className="max-md:hidden">{label}</span>
+    </span>
+    <div className="flex flex-col gap-2">
+      {spans.map((sp, idx) => (
+        <div key={idx} className="flex flex-col">
+          <strong
+            className={
+              idx === 0
+                ? 'font-display text-lg md:text-xl font-normal text-[var(--ink)]'
+                : 'text-sm font-medium text-[var(--ink)]'
+            }
+          >
+            {sp.name}
+          </strong>
+          <span className="font-mono-num text-xs text-[var(--muted)]">until {sp.endFormatted}</span>
+          {sp.subLabel && <span className="text-[11px] text-[var(--muted)]">{sp.subLabel}</span>}
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
 export const PanchangaView: React.FC<PanchangaViewProps> = ({ snapshot, purnimanta }) => {
   const { panchanga } = snapshot;
   const masaName = purnimanta ? panchanga.masa.purnimantaName : panchanga.masa.amantaName;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3 md:gap-4">
       {/* Header Banner */}
-      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-5 flex items-center justify-between gap-4">
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 md:p-5 flex items-center justify-between gap-3 md:gap-4">
         <div>
           <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
             Nitya Pañcāṅgam · {snapshot.place.name} ({snapshot.place.zone})
           </span>
-          <h2 className="font-display text-3xl font-normal text-[var(--ink)] mt-0.5 m-0">
+          <h2 className="font-display text-xl md:text-3xl font-normal text-[var(--ink)] mt-0.5 m-0">
             {panchanga.vara.en}, {snapshot.dateStr} · {snapshot.timeStr}
           </h2>
-          <p className="text-sm text-[var(--muted)] m-0 mt-1">
+          <p className="text-xs md:text-sm text-[var(--muted)] m-0 mt-1">
             {panchanga.vara.sanskrit} (Lord: {panchanga.vara.lord}) · {masaName} (
             {purnimanta ? 'Purnimanta' : 'Amanta'}) · {panchanga.pakshaLabel} · {panchanga.masa.ritu}
           </p>
@@ -45,124 +76,17 @@ export const PanchangaView: React.FC<PanchangaViewProps> = ({ snapshot, purniman
         {renderMoonSVG(panchanga.tithiAtBirth.phaseDeg)}
       </div>
 
-      {/* 4 Panchanga Limbs Grid: Tithi, Nakshatra, Yoga, Karana */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* Tithi */}
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 flex flex-col gap-2">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
-            Tithi (Lunar Day)
-          </span>
-          <div className="flex flex-col gap-2">
-            {panchanga.tithiSpans.map((sp, idx) => (
-              <div key={idx} className="flex flex-col">
-                <strong
-                  className={
-                    idx === 0
-                      ? 'font-display text-xl font-normal text-[var(--ink)]'
-                      : 'text-sm font-medium text-[var(--ink)]'
-                  }
-                >
-                  {sp.name}
-                </strong>
-                <span className="font-mono-num text-xs text-[var(--muted)]">
-                  until {sp.endFormatted}
-                </span>
-                {sp.subLabel && (
-                  <span className="text-[11px] text-[var(--muted)]">{sp.subLabel}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Nakshatra */}
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 flex flex-col gap-2">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
-            Nakṣatra (Lunar Mansion)
-          </span>
-          <div className="flex flex-col gap-2">
-            {panchanga.nakshatraSpans.map((sp, idx) => (
-              <div key={idx} className="flex flex-col">
-                <strong
-                  className={
-                    idx === 0
-                      ? 'font-display text-xl font-normal text-[var(--ink)]'
-                      : 'text-sm font-medium text-[var(--ink)]'
-                  }
-                >
-                  {sp.name}
-                </strong>
-                <span className="font-mono-num text-xs text-[var(--muted)]">
-                  until {sp.endFormatted}
-                </span>
-                {sp.subLabel && (
-                  <span className="text-[11px] text-[var(--muted)]">{sp.subLabel}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Yoga */}
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 flex flex-col gap-2">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
-            Nitya Yoga
-          </span>
-          <div className="flex flex-col gap-2">
-            {panchanga.yogaSpans.map((sp, idx) => (
-              <div key={idx} className="flex flex-col">
-                <strong
-                  className={
-                    idx === 0
-                      ? 'font-display text-xl font-normal text-[var(--ink)]'
-                      : 'text-sm font-medium text-[var(--ink)]'
-                  }
-                >
-                  {sp.name}
-                </strong>
-                <span className="font-mono-num text-xs text-[var(--muted)]">
-                  until {sp.endFormatted}
-                </span>
-                {sp.subLabel && (
-                  <span className="text-[11px] text-[var(--muted)]">{sp.subLabel}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Karana */}
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 flex flex-col gap-2">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
-            Karaṇa (Half-Tithi)
-          </span>
-          <div className="flex flex-col gap-2">
-            {panchanga.karanaSpans.map((sp, idx) => (
-              <div key={idx} className="flex flex-col">
-                <strong
-                  className={
-                    idx === 0
-                      ? 'font-display text-xl font-normal text-[var(--ink)]'
-                      : 'text-sm font-medium text-[var(--ink)]'
-                  }
-                >
-                  {sp.name}
-                </strong>
-                <span className="font-mono-num text-xs text-[var(--muted)]">
-                  until {sp.endFormatted}
-                </span>
-                {sp.subLabel && (
-                  <span className="text-[11px] text-[var(--muted)]">{sp.subLabel}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
+      {/* 4 Panchanga Limbs Grid: Tithi, Nakshatra, Yoga, Karana (2×2 on phones) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-3.5">
+        <LimbCard label="Tithi (Lunar Day)" shortLabel="Tithi" spans={panchanga.tithiSpans} />
+        <LimbCard label="Nakṣatra (Lunar Mansion)" shortLabel="Nakṣatra" spans={panchanga.nakshatraSpans} />
+        <LimbCard label="Nitya Yoga" shortLabel="Nitya Yoga" spans={panchanga.yogaSpans} />
+        <LimbCard label="Karaṇa (Half-Tithi)" shortLabel="Karaṇa" spans={panchanga.karanaSpans} />
       </div>
 
       {/* Sun & Moon + Daily Time Periods */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 sm:p-5 flex flex-col gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 sm:p-5 flex flex-col gap-3">
           <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
             Sun &amp; Moon Horizon &amp; Rāśi
           </span>
@@ -206,13 +130,18 @@ export const PanchangaView: React.FC<PanchangaViewProps> = ({ snapshot, purniman
           </dl>
         </section>
 
-        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 sm:p-5 flex flex-col gap-3">
+        <section className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 sm:p-5 flex flex-col gap-3">
           <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted)]">
             Daily Muhūrta &amp; Rāhu / Yama / Gulika Windows
           </span>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 m-0">
             {panchanga.periods.map((p) => (
-              <div key={p.name} className="flex flex-col">
+              <div
+                key={p.name}
+                className={`flex flex-col max-md:border-l-[3px] max-md:pl-2.5 ${
+                  p.good ? 'max-md:border-[var(--teal)]' : 'max-md:border-[var(--shunya)]'
+                }`}
+              >
                 <dt className="text-xs text-[var(--muted)] flex items-center justify-between pr-2">
                   <span>{p.name}</span>
                   <span

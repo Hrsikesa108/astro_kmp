@@ -20,6 +20,7 @@ interface SouthIndianChartProps {
   marks?: ChartKarakaMarks;
   selectedSign?: number | null;
   onSelectSign?: (signIdx: number) => void;
+  className?: string;
 }
 
 const VARGA_LABELS: Record<VargaNumber, { code: string; sanskrit: string; desc: string }> = {
@@ -37,6 +38,7 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   marks,
   selectedSign,
   onSelectSign,
+  className = '',
 }) => {
   const getSignForVarga = (p: PlanetPosition): number => {
     if (varga === 9) return p.d9Sign;
@@ -61,8 +63,9 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   const meta = VARGA_LABELS[varga];
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-2">
+    <div className={`chart-wrap flex flex-col gap-2 ${className}`}>
+      {/* On phones the chart picker already names the varga and the centre shows the Lagna */}
+      <div className="max-md:hidden flex items-baseline justify-between gap-2">
         <h3 className="font-display text-base font-normal text-[var(--ink)] m-0">
           {title} <span className="text-xs text-[var(--muted)] font-sans">· {meta.desc}</span>
         </h3>
@@ -133,37 +136,42 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
                 bySign[s].map((x) => x.name).join(', ') || 'Empty'
               }`}
             >
-              {bySign[s].map((x) => {
-                const isLa = x.name === 'Lagna';
-                const isKA = marks?.karakaA === x.name;
-                const isKB = marks?.karakaB === x.name;
-                let plCls = 'pl';
-                if (isLa) plCls += ' la';
-                else if (isKA && isKB) plCls += ' karaka-both';
-                else if (isKA) plCls += ' karaka-a';
-                else if (isKB) plCls += ' karaka-b';
-
-                const showRetro = x.retro && !['Rahu', 'Ketu', 'Lagna'].includes(x.name);
-
-                return (
-                  <span
-                    key={x.name}
-                    className={plCls}
-                    title={`${x.name} ${x.degFormatted} in ${rashi.en}${
-                      showRetro ? ' (Retrograde)' : ''
-                    }`}
-                  >
-                    <span>
-                      {x.short}
-                      {showRetro && <sup>R</sup>}
+              <span className="rc-pl">
+                {bySign[s].map((x) => {
+                  const isLa = x.name === 'Lagna';
+                  const isKA = marks?.karakaA === x.name;
+                  const isKB = marks?.karakaB === x.name;
+                  let plCls = 'pl';
+                  if (isLa) plCls += ' la';
+                  else if (isKA && isKB) plCls += ' karaka-both';
+                  else if (isKA) plCls += ' karaka-a';
+                  else if (isKB) plCls += ' karaka-b';
+  
+                  const showRetro = x.retro && !['Rahu', 'Ketu', 'Lagna'].includes(x.name);
+  
+                  return (
+                    <span
+                      key={x.name}
+                      className={plCls}
+                      title={`${x.name} ${x.degFormatted} in ${rashi.en}${
+                        showRetro ? ' (Retrograde)' : ''
+                      }`}
+                    >
+                      <span>
+                        {x.short}
+                        {showRetro && <sup>R</sup>}
+                      </span>
+                      {varga === 1 && <i>{x.degFormatted}</i>}
                     </span>
-                    {varga === 1 && <i>{x.degFormatted}</i>}
-                  </span>
-                );
-              })}
+                  );
+                })}
+              </span>
 
-              {cellTags.length > 0 && <span className="cell-tags">{cellTags}</span>}
-              <span className="rs">{rashi.abbr}</span>
+              {/* Tags + sign abbreviation: corner-pinned on desktop, their own row on phones */}
+              <span className="rc-foot">
+                {cellTags.length > 0 && <span className="cell-tags">{cellTags}</span>}
+                <span className="rs">{rashi.abbr}</span>
+              </span>
             </button>
           );
         })}
